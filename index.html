@@ -154,9 +154,6 @@ function calc(){
   let apostlesStart = addDays(pentecost, 1);     // بداية صوم الرسل
   let apostlesEnd = new Date(y, 6, 12);          // نهاية صوم الرسل 12 يوليو
   let jonah = addDays(lentStart, -14);           // صوم يونان
-  let dormitionStart = new Date(y, 7, 1);        // 1 أغسطس
-  let dormitionEnd = new Date(y, 7, 15);         // 15 أغسطس
-  let christmas = new Date(y, 0, 7);             // 7 يناير
 
   let text = lang==='ar' ? `
 📅 السنة: ${y}
@@ -176,10 +173,6 @@ function calc(){
 🔹 بداية صوم الرسل: ${formatDate(apostlesStart)}
 <br>
 🔹 نهاية صوم الرسل: ${formatDate(apostlesEnd)}
-<br>
-🔹 صوم السيدة العذراء مريم: ${formatDate(dormitionStart)} → ${formatDate(dormitionEnd)}
-<br>
-🔹 عيد الميلاد المجيد: ${formatDate(christmas)}
 ` : `
 📅 Year: ${y}
 <br>
@@ -198,10 +191,6 @@ function calc(){
 🔹 Apostles Fast Start: ${formatDate(apostlesStart)}
 <br>
 🔹 Apostles Fast End: ${formatDate(apostlesEnd)}
-<br>
-🔹 Dormition Fast (Virgin Mary): ${formatDate(dormitionStart)} → ${formatDate(dormitionEnd)}
-<br>
-🔹 Christmas: ${formatDate(christmas)}
 `;
   out.innerHTML = text;
 }
