@@ -114,80 +114,96 @@ function setLang(l){
   out.innerText=t[l].res;
 }
 
-// ===== حساب عيد القيامة الأرثوذكسي =====
-function getJulianOffset(y){return Math.floor(y/100)-Math.floor(y/400)-2;}
+// ===== حساب عيد القيامة الأرثوذكسي بدقة =====
 function orthodoxEaster(y){
-  let a=y%4,b=y%7,c=y%19;
-  let d=(19*c+15)%30;
-  let e=(2*a+4*b-d+34)%7;
-  let m=Math.floor((d+e+114)/31);
-  let day=((d+e+114)%31)+1;
-  let date=new Date(y,m-1,day);
-  date.setDate(date.getDate()+getJulianOffset(y));
-  return date;
+    let a = y % 4;
+    let b = y % 7;
+    let c = y % 19;
+    let d = (19*c + 15) % 30;
+    let e = (2*a + 4*b - d + 34) % 7;
+    let month = Math.floor((d + e + 114) / 31);
+    let day = ((d + e + 114) % 31) + 1;
+    let julianDate = new Date(y, month-1, day);
+    // تحويل من اليولياني للغريغوري
+    let offset = Math.floor(y/100) - Math.floor(y/400) - 2;
+    julianDate.setDate(julianDate.getDate() + offset);
+    return julianDate;
 }
-function add(d,n){let x=new Date(d);x.setDate(x.getDate()+n);return x;}
-function f(d){return d.toLocaleDateString(lang==='ar'?'ar-EG':'en-US');}
+
+// ===== دوال مساعدة =====
+function addDays(date, n){
+    let d = new Date(date);
+    d.setDate(d.getDate() + n);
+    return d;
+}
+
+function formatDate(d){
+    return d.toLocaleDateString(lang==='ar'?'ar-EG':'en-US', {day:'numeric', month:'long', year:'numeric'});
+}
 
 // ===== احسب النواتج =====
 function calc(){
-  let y=parseInt(year.value);
+  let y = parseInt(year.value);
   if(!y){alert(lang==='ar'?"ادخل السنة":"Enter year"); return;}
 
-  let easter=orthodoxEaster(y);
-  let lent=add(easter,-55);
-  let palm=add(easter,-7);
-  let pent=add(easter,49);
-  let apostlesStart=add(pent,1);
-  let apostlesEnd=new Date(y,6,12);
-  let jonah=add(lent,-14);
-  let rafaa=add(lent,-1);
-  let dormitionStart=new Date(y,6,22); // 1 آب
-  let dormitionEnd=new Date(y,7,6); // 15 آب
-  let christmas = new Date(y,0,7); // 7 يناير
+  let easter = orthodoxEaster(y);
+  let lentStart = addDays(easter, -55);          // بداية الصوم الكبير
+  let rafaa = addDays(lentStart, -1);            // يوم الرفاع
+  let palm = addDays(easter, -7);                // أحد الشعانين
+  let pentecost = addDays(easter, 49);           // عيد العنصرة (50 يوم بعد القيامة)
+  let apostlesStart = addDays(pentecost, 1);     // بداية صوم الرسل
+  let apostlesEnd = new Date(y, 6, 12);          // نهاية صوم الرسل 12 يوليو
+  let jonah = addDays(lentStart, -14);           // صوم يونان
+  let dormitionStart = new Date(y, 7, 1);        // 1 أغسطس
+  let dormitionEnd = new Date(y, 7, 15);         // 15 أغسطس
+  let christmas = new Date(y, 0, 7);             // 7 يناير
 
   let text = lang==='ar' ? `
 📅 السنة: ${y}
 
-🔹 صوم يونان: ${f(jonah)}
+🔹 صوم يونان: ${formatDate(jonah)}
 <br>
-🔹 بداية الصوم الكبير: ${f(lent)}
+🔹 بداية الصوم الكبير: ${formatDate(lentStart)}
 <br>
-🔹 أحد الشعانين: ${f(palm)}
+🔹 يوم الرفاع: ${formatDate(rafaa)}
 <br>
-🔹 عيد القيامة المجيد: ${f(easter)}
+🔹 أحد الشعانين: ${formatDate(palm)}
 <br>
-🔹 عيد العنصرة: ${f(pent)}
+🔹 عيد القيامة المجيد: ${formatDate(easter)}
 <br>
-🔹 بداية صيام الرسل: ${f(apostlesStart)}
+🔹 عيد العنصرة: ${formatDate(pentecost)}
 <br>
-🔹 نهاية صيام الرسل: ${f(apostlesEnd)}
+🔹 بداية صوم الرسل: ${formatDate(apostlesStart)}
 <br>
-🔹 صوم السيدة العذراء مريم: ${f(dormitionStart)} → ${f(dormitionEnd)}
+🔹 نهاية صوم الرسل: ${formatDate(apostlesEnd)}
 <br>
-🔹 عيد الميلاد المجيد: ${f(christmas)}
+🔹 صوم السيدة العذراء مريم: ${formatDate(dormitionStart)} → ${formatDate(dormitionEnd)}
+<br>
+🔹 عيد الميلاد المجيد: ${formatDate(christmas)}
 ` : `
 📅 Year: ${y}
 
-🔹 Jonah Fast: ${f(jonah)}
+🔹 Jonah Fast: ${formatDate(jonah)}
 <br>
-🔹 Great Lent Start (Rafaa): ${f(lent)}
+🔹 Great Lent Start: ${formatDate(lentStart)}
 <br>
-🔹 Palm Sunday: ${f(palm)}
+🔹 Rafaa Day: ${formatDate(rafaa)}
 <br>
-🔹 Easter: ${f(easter)}
+🔹 Palm Sunday: ${formatDate(palm)}
 <br>
-🔹 Pentecost: ${f(pent)}
+🔹 Easter: ${formatDate(easter)}
 <br>
-🔹 Apostles Fast Start: ${f(apostlesStart)}
+🔹 Pentecost: ${formatDate(pentecost)}
 <br>
-🔹 Apostles Fast End: ${f(apostlesEnd)}
+🔹 Apostles Fast Start: ${formatDate(apostlesStart)}
 <br>
-🔹 Dormition Fast (Virgin Mary): ${f(dormitionStart)} → ${f(dormitionEnd)}
+🔹 Apostles Fast End: ${formatDate(apostlesEnd)}
 <br>
-🔹 Christmas: ${f(christmas)}
+🔹 Dormition Fast (Virgin Mary): ${formatDate(dormitionStart)} → ${formatDate(dormitionEnd)}
+<br>
+🔹 Christmas: ${formatDate(christmas)}
 `;
-  out.innerHTML=text;
+  out.innerHTML = text;
 }
 
 // ===== شرح الصيامات بدون سنة =====
