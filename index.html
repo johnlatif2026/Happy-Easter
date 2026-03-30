@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  font-family:'Tahoma','Arial','Segoe UI',sans-serif;
+  background:linear-gradient(#0f172a,#020617);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.container{
+  width:95%;
+  max-width:700px;
+  background:#111827;
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
+}
+.logo{
+  width:120px;height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid #38bdf8;
+  margin-bottom:10px;
+}
+h1{color:#38bdf8}
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  margin-top:10px;
+}
+input{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  font-size:14px;
+  width:150px;
+  background:#1f2937;
+  color:white
+}
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  font-size:14px;
+  background:#38bdf8;
+  cursor:pointer;
+  min-width:120px;
+}
+.result{
+  background:#1f2937;
+  padding:15px;
+  margin-top:15px;
+  border-radius:10px;
+  text-align:right;
+  line-height:2;
+}
+.explainBox{
+  display:none;
+  margin-top:15px;
+  text-align:right;
+  background:#020617;
+  border-radius:10px;
+  padding:15px;
+  line-height:2;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<img src="https://i.postimg.cc/Y2fTWqzm/Picsart-26-03-30-01-37-06-582.jpg" class="logo">
+<h1 id="title">عيد قيامة مجيد</h1>
+
+<div class="controls">
+<button onclick="setLang('ar')">عربي</button>
+<button onclick="setLang('en')">English</button>
+</div>
+
+<div class="controls">
+<input type="number" id="year" placeholder="السنة">
+</div>
+
+<div class="controls">
+<button onclick="calc()" id="calcBtn">احسب</button>
+<button onclick="showExplanation()" id="expBtn">شرح الصيامات</button>
+</div>
+
+<div id="out" class="result">النتيجة ستظهر هنا</div>
+<div id="explain" class="explainBox"></div>
+
+</div>
+
+<script>
+// ===== اللغة =====
+let lang='ar';
+const t={
+ar:{title:"عيد قيامة مجيد",calc:"احسب",exp:"شرح الصيامات",res:"النتيجة ستظهر هنا"},
+en:{title:"Happy Easter",calc:"Calculate",exp:"Fasting Explanation",res:"Result will appear here"}
+};
+function setLang(l){
+  lang=l;
+  document.documentElement.dir=(l==='ar')?'rtl':'ltr';
+  title.innerText=t[l].title;
+  calcBtn.innerText=t[l].calc;
+  expBtn.innerText=t[l].exp;
+  out.innerText=t[l].res;
+}
+
+// ===== حساب عيد القيامة الأرثوذكسي =====
+function getJulianOffset(y){return Math.floor(y/100)-Math.floor(y/400)-2;}
+function orthodoxEaster(y){
+  let a=y%4,b=y%7,c=y%19;
+  let d=(19*c+15)%30;
+  let e=(2*a+4*b-d+34)%7;
+  let m=Math.floor((d+e+114)/31);
+  let day=((d+e+114)%31)+1;
+  let date=new Date(y,m-1,day);
+  date.setDate(date.getDate()+getJulianOffset(y));
+  return date;
+}
+function add(d,n){let x=new Date(d);x.setDate(x.getDate()+n);return x;}
+function f(d){return d.toLocaleDateString(lang==='ar'?'ar-EG':'en-US');}
+
+// ===== التحويل القبطي =====
+function toCoptic(date){
+  const copticMonths = ["توت","بابه","هاتور","كيهك","طوبة","أمشير","برمهات","برمودة","بشنس","بؤونة","أبيب","مسرى","نسيء"];
+  let year = date.getFullYear();
+  let newYear = new Date(year,8,11);
+  if(date < newYear){ newYear = new Date(year-1,8,11); }
+  let diff = Math.floor((date - newYear)/(1000*60*60*24));
+  let month = Math.floor(diff/30);
+  let day = (diff%30)+1;
+  return `${day} ${copticMonths[month]}`;
+}
+
+// ===== احسب النواتج =====
+function calc(){
+  let y=parseInt(year.value);
+  if(!y){alert(lang==='ar'?"ادخل السنة":"Enter year"); return;}
+
+  let easter=orthodoxEaster(y);
+  let lent=add(easter,-55);
+  let palm=add(easter,-7);
+  let pent=add(easter,49);
+  let apostlesStart=add(pent,1);
+  let apostlesEnd=new Date(y,6,12);
+  let jonah=add(lent,-14);
+  let rafaa=add(lent,-1);
+  let dormitionStart=new Date(y,6,22); // 1 آب
+  let dormitionEnd=new Date(y,7,6); // 15 آب
+  let christmas = new Date(y,0,7); // 7 يناير
+
+  let text = lang==='ar' ? `
+📅 السنة: ${y}
+
+🔹 صوم يونان: ${f(jonah)} (${toCoptic(jonah)})
+🔹 بداية الصوم الكبير (الرفاع): ${f(lent)} (${toCoptic(lent)})
+🔹 أحد الشعانين: ${f(palm)} (${toCoptic(palm)})
+🔹 عيد القيامة المجيد: ${f(easter)} (${toCoptic(easter)})
+🔹 عيد العنصرة: ${f(pent)} (${toCoptic(pent)})
+🔹 بداية صيام الرسل: ${f(apostlesStart)} (${toCoptic(apostlesStart)})
+🔹 نهاية صيام الرسل: ${f(apostlesEnd)}
+🔹 صوم السيدة العذراء مريم: ${f(dormitionStart)} → ${f(dormitionEnd)}
+🔹 عيد الميلاد المجيد: ${f(christmas)}
+` : `
+📅 Year: ${y}
+
+🔹 Jonah Fast: ${f(jonah)} (${toCoptic(jonah)})
+🔹 Great Lent Start (Rafaa): ${f(lent)} (${toCoptic(lent)})
+🔹 Palm Sunday: ${f(palm)} (${toCoptic(palm)})
+🔹 Easter: ${f(easter)} (${toCoptic(easter)})
+🔹 Pentecost: ${f(pent)} (${toCoptic(pent)})
+🔹 Apostles Fast Start: ${f(apostlesStart)} (${toCoptic(apostlesStart)})
+🔹 Apostles Fast End: ${f(apostlesEnd)}
+🔹 Dormition Fast (Virgin Mary): ${f(dormitionStart)} → ${f(dormitionEnd)}
+🔹 Christmas: ${f(christmas)}
+`;
+  out.innerHTML=text;
+}
+
+// ===== شرح الصيامات بدون سنة =====
+function showExplanation(){
+  let box=document.getElementById("explain");
+  if(box.style.display==="block"){box.style.display="none"; return;}
+  let text = lang==='ar' ? `
+🔹 طريقة حساب الصيام الكبير (يوم الرفاع):
+القاعدة: يتم تحديد يوم الرفاع بناءً على عيد القيامة.
+الخطوات:
+1️⃣ نحدد يوم عيد القيامة (يوم أحد)
+2️⃣ نرجع 55 يوم → بداية الصوم الكبير
+3️⃣ اليوم السابق مباشرة = يوم الرفاع (الأحد الذي يسبق أسبوع الاستعداد)
+مثال: إذا كان عيد القيامة في شهر برمهات:
+- نضيف 4 أيام → نحصل على يوم الرفاع
+- إذا كان الناتج >30 → نطرح 30 ويصبح التاريخ في أمشير
+` : `
+🔹 How to calculate Great Lent (Rafaa Day):
+Rule: Rafaa is determined from Easter.
+Steps:
+1️⃣ Determine Easter Sunday
+2️⃣ Subtract 55 days → start of Great Lent
+3️⃣ Previous day = Rafaa Day (Sunday before preparation week)
+Example: if Easter is in Baramhat:
+- Add 4 days → Rafaa day
+- If >30 → subtract 30 → date in Amshir
+`;
+  box.innerHTML=text;
+  box.style.display="block";
+}
+</script>
+</body>
+</html>
